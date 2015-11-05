@@ -1,0 +1,10 @@
+prefix: '[ParallaxTNT]'
+messageOnPlace: '%player% has a small penis!'
+disableItemDrops: true
+disableDispenserItemDrops: true
+completeFill: true
+fillingCap:
+  default: 64
+  vip: 128
+  vipplus: 256
+  owner: 102424654

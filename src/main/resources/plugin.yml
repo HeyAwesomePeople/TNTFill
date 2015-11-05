@@ -1,0 +1,8 @@
+name: TNTFill
+main: me.HeyAwesomePeople.TNTFill.TNTFill
+version: 1.0
+commands:
+  tntfill:
+    description: Main command
+  tntclear:
+    description: Clears tnt within radius
