@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 
-public class MessagesConfig {
+public class BlocksConfig {
 
     private TNTFill plugin = TNTFill.instance;
 
@@ -17,12 +17,12 @@ public class MessagesConfig {
 
     public void reloadCustomConfig() {
         if (customConfigFile == null) {
-            customConfigFile = new File(plugin.getDataFolder(), "messages.yml");
+            customConfigFile = new File(plugin.getDataFolder(), "blocks.yml");
         }
         customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
 
         // Look for defaults in the jar
-        InputStream defConfigStream = plugin.getResource("messages.yml");
+        InputStream defConfigStream = plugin.getResource("blocks.yml");
         if (defConfigStream != null) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
             customConfig.setDefaults(defConfig);
@@ -49,10 +49,10 @@ public class MessagesConfig {
 
     public void saveDefaultConfig() {
         if (customConfigFile == null) {
-            customConfigFile = new File(plugin.getDataFolder(), "messages.yml");
+            customConfigFile = new File(plugin.getDataFolder(), "blocks.yml");
         }
         if (!customConfigFile.exists()) {
-            plugin.saveResource("messages.yml", false);
+            plugin.saveResource("blocks.yml", false);
         }
     }
 

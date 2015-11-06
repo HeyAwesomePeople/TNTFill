@@ -1,5 +1,6 @@
 name: TNTFill
 main: me.HeyAwesomePeople.TNTFill.TNTFill
+softdepend: [PlotSquared, Multiverse-Core]
 version: 1.0
 commands:
   tntfill:

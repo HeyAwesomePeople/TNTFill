@@ -20,14 +20,14 @@ public class TNTListener implements Listener {
 
     @EventHandler
     public void onPlayerPlaceDispenser(BlockPlaceEvent e) {
-        if (e.getPlayer().hasPermission("tntfill.autofill")) {
+        if (plugin.autoFill.contains(e.getPlayer().getUniqueId())) {
             if (e.getBlock().getType().equals(Material.DISPENSER)) {
                 if (e.getBlock().getState() == null) return;
                 Dispenser dis = (Dispenser) e.getBlock().getState();
                 for (int i = 0; i <= dis.getInventory().getSize(); i++) {
                     dis.getInventory().addItem(new ItemStack(Material.TNT, 64));
                 }
-                e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messageOnPlace").replace("%player%", e.getPlayer().getName())));
+                e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.prefix() + plugin.messagesConfig.getCustomConfig().getString("messageOnPlace").replace("%player%", e.getPlayer().getName())));
             }
         }
     }
