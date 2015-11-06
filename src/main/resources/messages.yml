@@ -1,0 +1,14 @@
+prefix: '&3[TNT&4Fill&3] '
+noPermissions: '&4You do not have permissions to execute this command!'
+noSubcommand: '&4Invalid subcommand!'
+invalidArguments: '&4Invalid arguments!'
+tntFill:
+  autoFillEnabled: '&7Autofill has been enabled.'
+  autoFullDisabled: '&7Autofill has been disabled.'
+  failedToGetTargetBlock: '&5Look at a dispenser when running this command'
+  blockIsNotDispenser: '&6Block you are looking at is not a dispenser...'
+  success: '&4Added %amount% tnt into dispenser'
+tntClear:
+  overMaxRadius: '&5You cannot set a radius over 400'
+  numberNotInteger: '&5That number is not an integer!'
+  success: '&1Cleared all TNT in a radius of %radius%'

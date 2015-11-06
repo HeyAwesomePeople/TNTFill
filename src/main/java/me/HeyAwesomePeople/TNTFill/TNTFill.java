@@ -45,7 +45,7 @@ public class TNTFill extends JavaPlugin implements Listener {
     }
 
     public String prefix() {
-        return getConfig().getString("prefix");
+        return ChatColor.translateAlternateColorCodes('&', getConfig().getString("prefix")) + " ";
     }
 
     public boolean onCommand(final CommandSender sender, Command cmd,
@@ -64,52 +64,84 @@ public class TNTFill extends JavaPlugin implements Listener {
         if (commandLabel.equalsIgnoreCase("tntfill")) {
             if (args[0].equalsIgnoreCase("auto")) {
                 if (!p.hasPermission("tntfill.auto")) {
-                    p.sendMessage(prefix() + ChatColor.RED + "You do not have permissions to use this command!");
+                    p.sendMessage(prefix() + getMessage("noPermissions"));
                     return false;
                 }
                 if (autoFill.contains(p.getUniqueId())) {
                     autoFill.remove(p.getUniqueId());
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix()));
+                    p.sendMessage(prefix() + getMessage("tntFill.autoFillDisabled"));
                 } else {
                     autoFill.add(p.getUniqueId());
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix()));
+                    p.sendMessage(prefix() + getMessage("tntFill.autoFillEnabled"));
                 }
                 return false;
             } else if (isInteger(args[0])) {
-                if (!p.hasPermission("tntfill.perform")) {
-                    p.sendMessage(prefix() + ChatColor.RED + "You do not have permissions to use this command!");
+                if (!p.hasPermission("tntfill.use")) {
+                    p.sendMessage(prefix() + getMessage("noPermissions"));
                     return false;
                 }
                 if (p.getTargetBlock((Set<Material>) null, 7) == null) {
-                    // TODO message
+                    p.sendMessage(prefix() + getMessage("tntFill.failedToGetTargetBlock"));
                     return false;
                 }
                 Block b = p.getTargetBlock((Set<Material>) null, 7);
                 if (!b.getType().equals(Material.DISPENSER)) {
-                    // TODO message
+                    p.sendMessage(prefix() + getMessage("tntFill.blockIsNotDispenser"));
                     return false;
                 }
                 Dispenser dis = (Dispenser) b.getState();
-                for (int i = 0; i <= 128; i++) { //TODO change amount
-                    dis.getInventory().addItem(new ItemStack(Material.TNT));
+                Integer am = Integer.parseInt(args[0]);
+                Integer cap = getFillingCap(p);
+                if (am > cap) {
+                    for (int i = 0; i <= getFillingCap(p); i++) {
+                        dis.getInventory().addItem(new ItemStack(Material.TNT));
+                    }
+                    p.sendMessage(prefix() + getMessage("tntFill.success").replace("%amount%", cap + ""));
+                } else {
+                    for (int i = 0; i <= am; i++) {
+                        dis.getInventory().addItem(new ItemStack(Material.TNT));
+                    }
+                    p.sendMessage(prefix() + getMessage("tntFill.success").replace("%amount%", am + ""));
                 }
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix() + "".replace("%amount%", 128 + /* TODO */ "")));
-                // TODO fill dispenser
+                return false;
             } else {
-                p.sendMessage(prefix() + ChatColor.RED + "Invalid subcommand!");
+                p.sendMessage(prefix() + getMessage("noSubcommand"));
             }
         }
         if (commandLabel.equalsIgnoreCase("tntclear")) {
-            if (args.length == 0) {
-
+            if (!p.hasPermission("tntfill.tntclear")) {
+                p.sendMessage(prefix() + getMessage("noPermissions"));
+                return false;
+            }
+            if (args.length == 1) {
+                if (isInteger(args[0])) {
+                    if (Integer.parseInt(args[0]) > getConfig().getInt("maxRadius")) {
+                        p.sendMessage(prefix() + getMessage("tntClear.overMaxRadius").replace("%radius%", args[0]));
+                        return false;
+                    }
+                    clearAllTNTWithinRadius(Integer.parseInt(args[0]), p);
+                    p.sendMessage(prefix() + getMessage("tntClear.success").replace("%radius%", args[0]));
+                } else {
+                    p.sendMessage(prefix() + getMessage("tntClear.numberNotInteger"));
+                }
             } else {
-
+                p.sendMessage(prefix() + getMessage("invalidArguments"));
             }
         }
         return false;
     }
 
-    public void clearAllTNTWithinRadius(int radius, Player p) {
+    public Integer getFillingCap(Player p) {
+        int cap = 1;
+        for (String s : getConfig().getConfigurationSection("fillingCap").getKeys(false)) {
+            if (p.hasPermission("tntfill.fillcap." + s)) {
+                cap = getConfig().getInt("fillingCap." + s);
+            }
+        }
+        return cap;
+    }
+
+    public Integer clearAllTNTWithinRadius(int radius, Player p) {
         Location center = p.getLocation();
         int nR = -(Math.abs(radius));
         int r = Math.abs(radius);
@@ -121,11 +153,18 @@ public class TNTFill extends JavaPlugin implements Listener {
                     if (block.getType().equals(Material.DISPENSER)) {
                         if (block.getState() == null) continue;
                         Dispenser dis = (Dispenser) block.getState();
-                        dis.getInventory().clear();
+                        for (ItemStack i : dis.getInventory().getContents()) {
+                            if (i.getType().equals(Material.TNT)) {
+                                totalRemoved++;
+                                dis.getInventory().remove(i);
+                            }
+                        }
+                        dis.update();
                     }
                 }
             }
         }
+        return totalRemoved;
     }
 
     public boolean isInteger(String s) {
